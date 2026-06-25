@@ -1,0 +1,46 @@
+name: Build and Download Plotsquared
+
+on:
+  # 手动触发（点击“Run workflow”按钮）
+  workflow_dispatch:
+  # 代码提交到任意分支时自动触发（可选）
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 检出代码
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. 验证Gradle Wrapper（确保Gradle版本与项目一致）
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      # 3. 设置Java环境（Plotsquared需Java 21）
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # 4. 清理并构建项目
+      - name: Clean Build
+        run: ./gradlew clean build
+
+      # 5. 下载构建产物（JAR包）
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: build-downloads/  # 产物将下载到仓库根目录的build-downloads/文件夹
+
+      # 6. 上传构建产物（可选，保留在GitHub Actions的Artifacts列表中）
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plotsquared-build  # 产物包名称
+          path: build-downloads/    # 上传build-downloads/文件夹中的所有文件
+          retention-days: 7         # 保留7天（可调整）
