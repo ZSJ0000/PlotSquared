@@ -18,7 +18,7 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v4
 
-      # 3. 设置Java环境
+      # 3. 设置Java环境（Plotsquared需Java 21）
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -29,17 +29,17 @@ jobs:
       - name: Clean Build All Modules
         run: ./gradlew clean build assemble -x test  # -x test跳过测试，加速构建
 
-      # 5. 下载所有模块的构建产物
+      # 5. 下载所有模块的构建产物（自动归档到当前目录）
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          path: build-downloads/  # 产物将自动归档到build-downloads/
-          merge-multiple: true     # 合并所有模块的产物到同一目录
+          path: .  # 下载所有模块的产物到当前目录
+          merge-multiple: true  # 合并所有模块的产物到同一目录
 
       # 6. 上传构建产物（保留7天）
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: plotsquared-build
-          path: build-downloads/
+          path: .  # 上传当前目录下的所有产物
           retention-days: 7
